@@ -1,0 +1,8 @@
+github.com/caiguanhao/ossslim v1.0.1 h1:3xbkIz1BV6eN2oTnF1F24opj2z0hol49tTStMNoMvBQ=
+github.com/caiguanhao/ossslim v1.0.1/go.mod h1:oVKFekpakheexNSvknmtcebluNg86VVC9cQDx5UFOy4=
+github.com/caiguanhao/strftime v1.1.0 h1:Yn4ZYYczb1DWSnl0gv6UUo2vnXfp+odBYF1ORIdx7Ls=
+github.com/caiguanhao/strftime v1.1.0/go.mod h1:hhdZLRkUFhff5frWZ8qJTPGXYOr5KGTzkk6+OuuAMDU=
+golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 h1:nxC68pudNYkKU6jWhgrqdreuFiOQWj1Fs7T3VrH4Pjw=
+golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/term v0.0.0-20210422114643-f5beecf764ed h1:Ei4bQjjpYUsS4efOUz+5Nz++IVkHk87n2zBA0NxBWc0=
+golang.org/x/term v0.0.0-20210422114643-f5beecf764ed/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
