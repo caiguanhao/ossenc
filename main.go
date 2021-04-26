@@ -21,6 +21,10 @@ import (
 	"golang.org/x/term"
 )
 
+const (
+	command = "curl -s %s | openssl enc -d -aes-256-ofb -iv 0 -K %s | unpigz\n"
+)
+
 var (
 	noProgress   bool
 	dryRun       bool
@@ -76,25 +80,7 @@ func main() {
 		} else {
 			prefix = dir
 		}
-		result, err := client.List(prefix, true)
-		if err != nil {
-			log.Fatalln(err)
-		}
-		nameLen := 20
-		sizeLen := 1
-		for _, f := range result.Files {
-			nl := len(f.Name)
-			if nl > nameLen {
-				nameLen = nl
-			}
-			sl := len(strconv.FormatInt(f.Size, 10))
-			if sl > sizeLen {
-				sizeLen = sl
-			}
-		}
-		for _, f := range result.Files {
-			fmt.Printf(fmt.Sprintf("%%-%ds\t%%%dd\t%%s\n", nameLen, sizeLen), f.Name, f.Size, f.LastModified)
-		}
+		list(prefix)
 		return
 	}
 
@@ -145,22 +131,27 @@ func main() {
 
 }
 
-func formatName(path string) string {
-	filename := filepath.Base(path)
-	ext := filepath.Ext(filename)
-	base := filename[0 : len(filename)-len(ext)]
-	name := strftime.Format(conf.FileNameFormat, time.Now())
-	name = strings.ReplaceAll(name, "%{name}", base)
-	name = strings.ReplaceAll(name, "%{ext}", ext)
-	if name == "" {
-		return filename
+func list(prefix string) {
+	result, err := client.List(prefix, true)
+	if err != nil {
+		log.Fatalln(err)
 	}
-	return name
+	nameLen := 20
+	sizeLen := 1
+	for _, f := range result.Files {
+		nl := len(f.Name)
+		if nl > nameLen {
+			nameLen = nl
+		}
+		sl := len(strconv.FormatInt(f.Size, 10))
+		if sl > sizeLen {
+			sizeLen = sl
+		}
+	}
+	for _, f := range result.Files {
+		fmt.Printf(fmt.Sprintf("%%-%ds\t%%%dd\t%%s\n", nameLen, sizeLen), f.Name, f.Size, f.LastModified)
+	}
 }
-
-const (
-	command = "curl -s %s | openssl enc -d -aes-256-ofb -iv 0 -K %s | unpigz\n"
-)
 
 func upload(reader io.Reader, total *int64, src, path string) {
 	if dryRun {
@@ -174,6 +165,8 @@ func upload(reader io.Reader, total *int64, src, path string) {
 	}
 
 	r, w := io.Pipe()
+
+	defer r.Close()
 
 	go func() {
 		defer w.Close()
@@ -289,4 +282,17 @@ func decompress(key key, reader io.Reader, writer io.Writer) error {
 		return err
 	}
 	return nil
+}
+
+func formatName(path string) string {
+	filename := filepath.Base(path)
+	ext := filepath.Ext(filename)
+	base := filename[0 : len(filename)-len(ext)]
+	name := strftime.Format(conf.FileNameFormat, time.Now())
+	name = strings.ReplaceAll(name, "%{name}", base)
+	name = strings.ReplaceAll(name, "%{ext}", ext)
+	if name == "" {
+		return filename
+	}
+	return name
 }
