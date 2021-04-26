@@ -41,19 +41,22 @@ func main() {
 	}
 
 	flag.BoolVar(&noProgress, "p", false, "do not show progress")
-	flag.BoolVar(&printCommand, "P", false, "print decryption command")
+	flag.BoolVar(&printCommand, "P", false, "print openssl decryption command after upload")
 	configFile := flag.String("c", defaultConfigFile, "location of the config file")
 	createConfig := flag.Bool("C", false, "create (update if exists) config file and exit")
-	format := flag.String("F", "", "file name format, overrides FileNameFormat config")
+	format := flag.String("f", "", "file name format, overrides FileNameFormat config")
+	noFormat := flag.Bool("F", false, "do not format remote file name, ignore FileNameFormat config")
 	listDirectory := flag.Bool("l", false, "list directory")
 	output := flag.String("o", "", "download remote file to local file, use - for stdout")
 	outputRemote := flag.Bool("O", false, "just like -o but use remote file name")
-	flag.BoolVar(&dryRun, "n", false, "dry-run, do not upload")
+	flag.BoolVar(&dryRun, "n", false, "dry-run, do not upload or download any file")
 	flag.Parse()
 
 	conf = readConf(*configFile, *createConfig)
 
-	if *format != "" {
+	if *noFormat {
+		conf.FileNameFormat = ""
+	} else if *format != "" {
 		conf.FileNameFormat = *format
 	}
 
@@ -89,7 +92,7 @@ func main() {
 		if len(flag.Args()) == 0 {
 			log.Fatalln("You must provide remote file name.")
 		}
-		b := filepath.Base(flag.Arg(0))
+		b := filepath.Base(formatName(flag.Arg(0)))
 		output = &b
 	}
 	if *output != "" {
@@ -108,7 +111,8 @@ func main() {
 			defer f.Close()
 			target = f
 		}
-		download(target, flag.Arg(0), *output)
+		dest := path.Join(dir, formatName(flag.Arg(0)))
+		download(target, dest, *output)
 		return
 	}
 
@@ -216,6 +220,11 @@ func upload(reader io.Reader, total *int64, src, path string) {
 }
 
 func download(target io.Writer, key, dest string) {
+	if dryRun {
+		fmt.Println(client.URL(key), "->", dest)
+		return
+	}
+
 	r, w := io.Pipe()
 
 	defer r.Close()
@@ -300,6 +309,9 @@ func decompress(key key, reader io.Reader, writer io.Writer) error {
 }
 
 func formatName(path string) string {
+	if conf.FileNameFormat == "" {
+		return path
+	}
 	filename := filepath.Base(path)
 	ext := filepath.Ext(filename)
 	base := filename[0 : len(filename)-len(ext)]

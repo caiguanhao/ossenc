@@ -8,6 +8,7 @@ import (
 )
 
 type progress struct {
+	started   bool
 	name      string
 	end       chan bool
 	written   int64
@@ -18,6 +19,7 @@ type progress struct {
 
 func (prog *progress) Write(p []byte) (n int, err error) {
 	n = len(p)
+	prog.started = true
 	prog.written += int64(n)
 	return
 }
@@ -64,6 +66,9 @@ func (prog *progress) getTotal() (total string) {
 }
 
 func (prog *progress) print(line string) {
+	if prog.started == false {
+		return
+	}
 	if len(line) < prog.maxStrLen {
 		line += strings.Repeat(" ", prog.maxStrLen-len(line))
 	}
