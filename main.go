@@ -4,7 +4,6 @@ import (
 	"compress/zlib"
 	"crypto/aes"
 	"crypto/cipher"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -32,7 +31,7 @@ var (
 )
 
 func main() {
-	defaultConfigFile := ".ossenc.json"
+	defaultConfigFile := ".ossenc.go"
 	if home, _ := os.UserHomeDir(); home != "" {
 		defaultConfigFile = home + "/" + defaultConfigFile
 	}
@@ -47,24 +46,7 @@ func main() {
 	flag.BoolVar(&dryRun, "n", false, "dry-run, do not upload")
 	flag.Parse()
 
-	file := *configFile
-	f, err := os.Open(file)
-	if err != nil {
-		if os.IsNotExist(err) && *createConfig {
-			updateConfigFile(file, nil)
-			return
-		} else {
-			log.Fatalln(err)
-		}
-	}
-	err = json.NewDecoder(f).Decode(&conf)
-	f.Close()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	if *createConfig {
-		updateConfigFile(file, &conf)
-	}
+	conf = readConf(*configFile, *createConfig)
 
 	if *format != "" {
 		conf.FileNameFormat = *format
@@ -123,6 +105,7 @@ func main() {
 		var target io.Writer
 		if *output == "-" {
 			target = os.Stdout
+			noProgress = true
 		} else {
 			f, err := os.OpenFile(*output, os.O_RDWR|os.O_CREATE, 0600)
 			if err != nil {
@@ -257,7 +240,9 @@ func download(target io.Writer, key, dest string) {
 		time.Sleep(1500 * time.Millisecond) // time for the final message
 	}
 
-	fmt.Fprintln(os.Stderr, req.URL(), "->", dest)
+	if noProgress == false {
+		fmt.Fprintln(os.Stderr, req.URL(), "->", dest)
+	}
 }
 
 func compress(key key, reader io.Reader, writer io.Writer) error {
