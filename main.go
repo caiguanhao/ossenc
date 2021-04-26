@@ -37,7 +37,7 @@ var (
 func main() {
 	defaultConfigFile := ".ossenc.go"
 	if home, _ := os.UserHomeDir(); home != "" {
-		defaultConfigFile = home + "/" + defaultConfigFile
+		defaultConfigFile = filepath.Join(home, defaultConfigFile)
 	}
 
 	flag.BoolVar(&noProgress, "p", false, "do not show progress")
@@ -47,6 +47,7 @@ func main() {
 	format := flag.String("F", "", "file name format, overrides FileNameFormat config")
 	listDirectory := flag.Bool("l", false, "list directory")
 	output := flag.String("o", "", "download remote file to local file, use - for stdout")
+	outputRemote := flag.Bool("O", false, "just like -o but use remote file name")
 	flag.BoolVar(&dryRun, "n", false, "dry-run, do not upload")
 	flag.Parse()
 
@@ -84,6 +85,13 @@ func main() {
 		return
 	}
 
+	if *outputRemote {
+		if len(flag.Args()) == 0 {
+			log.Fatalln("You must provide remote file name.")
+		}
+		b := filepath.Base(flag.Arg(0))
+		output = &b
+	}
 	if *output != "" {
 		if len(flag.Args()) == 0 {
 			log.Fatalln("You must provide remote file name.")
