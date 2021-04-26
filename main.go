@@ -170,20 +170,27 @@ func upload(reader io.Reader, total *int64, src, path string) {
 
 	go func() {
 		defer w.Close()
+
+		prog := &progress{
+			name:  filepath.Base(path),
+			total: total,
+		}
+
 		var writer io.Writer
 		if noProgress == false {
-			prog := &progress{
-				name:  filepath.Base(path),
-				total: total,
-			}
 			go prog.Run()
-			defer prog.Close()
 			writer = io.MultiWriter(w, prog)
 		} else {
 			writer = w
 		}
+
 		if err := compress(conf.EncryptionKey, reader, writer); err != nil {
 			log.Fatalln(err)
+		}
+
+		if noProgress == false {
+			prog.Close()
+			time.Sleep(1500 * time.Millisecond) // time for the final message
 		}
 	}()
 
