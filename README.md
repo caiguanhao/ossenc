@@ -6,11 +6,18 @@ Upload and download encrypted files to Aliyun OSS.
 go get -v -u github.com/caiguanhao/ossenc
 ```
 
+If you want to enable the remote file deletion (-D option):
+
+```
+go get -v -u -tags delete github.com/caiguanhao/ossenc
+```
+
 Options:
 
 ```
 Usage of ossenc:
   -C	create (update if exists) config file and exit
+  -D	delete remote files
   -F	do not format remote file name, ignore FileNameFormat config
   -O	just like -o but use remote file name
   -P	print openssl decryption command after upload
@@ -68,4 +75,12 @@ ossenc -l
 
 # list contents of root
 ossenc -l -F /
+```
+
+### Delete
+
+You must build `ossenc` with tag `delete`.
+
+```
+ossenc -D remoteFiles...
 ```

@@ -32,6 +32,8 @@ var (
 
 	conf   config
 	client ossslim.Client
+
+	allowDelete bool
 )
 
 func main() {
@@ -47,6 +49,10 @@ func main() {
 	format := flag.String("f", "", "file name format, overrides FileNameFormat config")
 	noFormat := flag.Bool("F", false, "do not format remote file name, ignore FileNameFormat config")
 	listDirectory := flag.Bool("l", false, "list directory")
+	deleteRemote := false
+	if allowDelete {
+		flag.BoolVar(&deleteRemote, "D", false, "delete remote files")
+	}
 	output := flag.String("o", "", "download remote file to local file, use - for stdout")
 	outputRemote := flag.Bool("O", false, "just like -o but use remote file name")
 	flag.BoolVar(&dryRun, "n", false, "dry-run, do not upload or download any file")
@@ -113,6 +119,29 @@ func main() {
 		}
 		dest := path.Join(dir, formatName(flag.Arg(0)))
 		download(target, dest, *output)
+		return
+	}
+
+	if deleteRemote {
+		if len(flag.Args()) == 0 {
+			log.Fatalln("You must provide remote file name.")
+		}
+		var names []string
+		for _, arg := range flag.Args() {
+			name := path.Join(dir, formatName(arg))
+			name = strings.Trim(name, "/")
+			names = append(names, name)
+		}
+		if dryRun {
+			for _, name := range names {
+				fmt.Println(name)
+			}
+			return
+		}
+		err := client.Delete(names...)
+		if err != nil {
+			log.Fatalln(err)
+		}
 		return
 	}
 
