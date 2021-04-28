@@ -80,9 +80,9 @@ func main() {
 	if *listDirectory {
 		var prefix string
 		if len(flag.Args()) > 0 {
-			prefix = flag.Arg(0)
+			prefix = path.Join(dir, formatName(flag.Arg(0)))
 		} else {
-			prefix = dir
+			prefix = path.Join(dir, formatName(""))
 		}
 		list(prefix)
 		return
@@ -144,14 +144,17 @@ func main() {
 }
 
 func list(prefix string) {
+	prefix = strings.Trim(prefix, "/") + "/"
 	result, err := client.List(prefix, true)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	nameLen := 20
+	fmt.Println("Contents of", prefix)
+	nameLen := 10
 	sizeLen := 1
 	for _, f := range result.Files {
-		nl := len(f.Name)
+		name := strings.TrimPrefix(f.Name, prefix)
+		nl := len(name)
 		if nl > nameLen {
 			nameLen = nl
 		}
@@ -161,7 +164,8 @@ func list(prefix string) {
 		}
 	}
 	for _, f := range result.Files {
-		fmt.Printf(fmt.Sprintf("%%-%ds\t%%%dd\t%%s\n", nameLen, sizeLen), f.Name, f.Size, f.LastModified)
+		name := strings.TrimPrefix(f.Name, prefix)
+		fmt.Printf(fmt.Sprintf("%%-%ds\t%%%dd\t%%s\n", nameLen, sizeLen), name, f.Size, f.LastModified)
 	}
 }
 
