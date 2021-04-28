@@ -19,7 +19,8 @@ type (
 	config struct {
 		EncryptionKey key `
 Use hexadecimal string with 64 characters to express 256-bit encryption key for
-aes-256-ofb.`
+aes-256-ofb. To generate new key, leave this key empty, save this file and then
+run ossenc -C.`
 		FileNameFormat string `
 Format of the remote file name for upload, %{name} for the file name without
 extension, %{ext} for the file extension. You can also use formats used in
@@ -123,10 +124,7 @@ func readConf(file string, toUpdate bool) (conf config) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
 		if os.IsNotExist(err) && toUpdate {
-			k := make(key, 32)
-			rand.Read(k)
 			conf = config{
-				EncryptionKey:  k,
 				FileNameFormat: "%Y/%m/%d/%{name}%{ext}",
 			}
 			created = true
@@ -140,6 +138,11 @@ func readConf(file string, toUpdate bool) (conf config) {
 		}
 	}
 	if toUpdate {
+		if len(conf.EncryptionKey) == 0 {
+			k := make(key, 32)
+			rand.Read(k)
+			conf.EncryptionKey = k
+		}
 		err = ioutil.WriteFile(file, []byte(marshalConfig(conf)), 0600)
 		if err != nil {
 			log.Fatalln(err)
