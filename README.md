@@ -14,7 +14,7 @@ enable it, you must build with `delete` tag:
 go get -v -u -tags delete github.com/caiguanhao/ossenc
 ```
 
-Options:
+## Option
 
 ```
 Usage of ossenc:
@@ -89,7 +89,7 @@ ossenc localFiles...
 cat localFile | ossenc
 ```
 
-### Download
+## Download
 
 ```
 # download to localFile
@@ -102,7 +102,7 @@ ossenc -O remoteFile
 ossenc -o - remoteFile
 ```
 
-### List
+## List
 
 ```
 # list contents of current directory
@@ -112,7 +112,7 @@ ossenc -l
 ossenc -l -F /
 ```
 
-### Delete
+## Delete
 
 You must build `ossenc` with tag `delete`.
 
