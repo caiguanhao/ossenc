@@ -46,6 +46,7 @@ func main() {
 	flag.BoolVar(&printCommand, "P", false, "print openssl decryption command after upload")
 	configFile := flag.String("c", defaultConfigFile, "location of the config file")
 	createConfig := flag.Bool("C", false, "create (update if exists) config file and exit")
+	stdinFileName := flag.String("I", "stdin", "file name for stdin, allow strftime formats")
 	format := flag.String("f", "", "file name format, overrides FileNameFormat config")
 	noFormat := flag.Bool("F", false, "do not format remote file name, ignore FileNameFormat config")
 	listDirectory := flag.Bool("l", false, "list directory")
@@ -146,12 +147,13 @@ func main() {
 	}
 
 	if len(flag.Args()) == 0 {
-		dest := path.Join(dir, formatName("stdin"))
 		if term.IsTerminal(int(os.Stdin.Fd())) {
 			noProgress = true
 			fmt.Fprintln(os.Stderr, "Input content and press Ctrl-D to finish or Ctrl-C to abort:")
 		}
-		upload(os.Stdin, nil, "stdin", dest)
+		name := strftime.Format(*stdinFileName, time.Now())
+		dest := path.Join(dir, formatName(name))
+		upload(os.Stdin, nil, name, dest)
 		return
 	}
 
