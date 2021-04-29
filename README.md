@@ -1,12 +1,14 @@
 # ossenc
 
-Upload and download encrypted files to Aliyun OSS.
+Upload, download, list and delete encrypted files on Aliyun OSS. Files are
+compressed using zlib, encrypted using aes-256-ofb.
 
 ```
 go get -v -u github.com/caiguanhao/ossenc
 ```
 
-If you want to enable the remote file deletion (-D option):
+By default, remote file deletion function (the -D option) is not included, to
+enable it, you must build with `delete` tag:
 
 ```
 go get -v -u -tags delete github.com/caiguanhao/ossenc
@@ -41,6 +43,39 @@ default location of the config file is `~/.ossenc.go`.
 # create config
 ossenc -C
 ```
+
+### EncryptionKey
+
+The 256-bit encryption key for aes-256-ofb.
+
+### FileNameFormat
+
+Format of the remote file name for upload and download.
+
+`%{name}` - file name without extension
+
+`%{ext}` - file extension
+
+You can also use formats used in
+[strftime()](https://github.com/caiguanhao/strftime), for example, `%Y` (year),
+`%m` (month), `%d` (day), `%H` (hour), `%M` (minute), `%S` (second), `%s`
+(timestamp), `%N` (nanosecond).
+
+### OSSAccessKeyId
+
+Access key ID for Aliyun OSS.
+
+### OSSAccessKeySecret
+
+Access key secret for Aliyun OSS.
+
+### OSSPrefix
+
+URL prefix for Aliyun OSS. `https://<bucket-name>.<region>.aliyuncs.com/<root>`.
+
+### OSSBucket
+
+Bucket name for Aliyun OSS.
 
 ## Upload
 
