@@ -14,6 +14,8 @@ enable it, you must build with `delete` tag:
 go get -v -u -tags delete github.com/caiguanhao/ossenc
 ```
 
+<img src="https://user-images.githubusercontent.com/1284703/117255180-ee783d80-ae7b-11eb-8e2a-4e7b79a3bc7a.gif" alt="gif" width="500">
+
 ## Option
 
 ```
