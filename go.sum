@@ -2,6 +2,8 @@ github.com/caiguanhao/ossslim v1.0.1 h1:3xbkIz1BV6eN2oTnF1F24opj2z0hol49tTStMNoM
 github.com/caiguanhao/ossslim v1.0.1/go.mod h1:oVKFekpakheexNSvknmtcebluNg86VVC9cQDx5UFOy4=
 github.com/caiguanhao/strftime v1.1.0 h1:Yn4ZYYczb1DWSnl0gv6UUo2vnXfp+odBYF1ORIdx7Ls=
 github.com/caiguanhao/strftime v1.1.0/go.mod h1:hhdZLRkUFhff5frWZ8qJTPGXYOr5KGTzkk6+OuuAMDU=
+github.com/gopsql/goconf v1.0.0 h1:yTCDL0H/DBxu9fKvzWTSE/WyxxpO5thH/m8wdEOZ2v4=
+github.com/gopsql/goconf v1.0.0/go.mod h1:jIS+fAazH4/pBw6q0x5eFw4g7VWjdRc4TjV570QrCx8=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 h1:nxC68pudNYkKU6jWhgrqdreuFiOQWj1Fs7T3VrH4Pjw=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20210422114643-f5beecf764ed h1:Ei4bQjjpYUsS4efOUz+5Nz++IVkHk87n2zBA0NxBWc0=
