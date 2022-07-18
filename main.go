@@ -351,6 +351,7 @@ func formatName(path string) string {
 	ext := filepath.Ext(filename)
 	base := filename[0 : len(filename)-len(ext)]
 	name := strftime.Format(conf.FileNameFormat, time.Now())
+	base = strftime.Format(base, time.Now())
 	name = strings.ReplaceAll(name, "%{name}", base)
 	name = strings.ReplaceAll(name, "%{ext}", ext)
 	if name == "" {
