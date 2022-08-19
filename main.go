@@ -22,10 +22,12 @@ import (
 )
 
 const (
-	command = "curl -s %s | openssl enc -d -aes-256-ofb -iv 0 -K %s | unpigz\n"
+	command          = "curl -s %s | openssl enc -d -aes-256-ofb -iv 0 -K %s | unpigz\n"
+	commandNoEncrpyt = "curl -s %s | unpigz\n"
 )
 
 var (
+	noEncrypt    bool
 	noProgress   bool
 	dryRun       bool
 	printCommand bool
@@ -42,6 +44,7 @@ func main() {
 		defaultConfigFile = filepath.Join(home, defaultConfigFile)
 	}
 
+	flag.BoolVar(&noEncrypt, "E", false, "do not encrypt or decrypt")
 	flag.BoolVar(&noProgress, "p", false, "do not show progress")
 	flag.BoolVar(&printCommand, "P", false, "print openssl decryption command after upload")
 	configFile := flag.String("c", defaultConfigFile, "location of the config file")
@@ -204,7 +207,11 @@ func upload(reader io.Reader, total *int64, src, path string) {
 	if dryRun {
 		if printCommand {
 			fmt.Println("#", src)
-			fmt.Printf(command, client.URL(path), conf.EncryptionKey)
+			if noEncrypt {
+				fmt.Printf(commandNoEncrpyt, client.URL(path))
+			} else {
+				fmt.Printf(command, client.URL(path), conf.EncryptionKey)
+			}
 		} else {
 			fmt.Println(src, "->", client.URL(path))
 		}
@@ -248,7 +255,11 @@ func upload(reader io.Reader, total *int64, src, path string) {
 	}
 
 	if printCommand {
-		fmt.Printf(command, req.URL(), conf.EncryptionKey)
+		if noEncrypt {
+			fmt.Printf(commandNoEncrpyt, req.URL())
+		} else {
+			fmt.Printf(command, req.URL(), conf.EncryptionKey)
+		}
 	} else {
 		fmt.Fprintln(os.Stderr, src, "->", client.URL(path))
 	}
@@ -298,6 +309,16 @@ func download(target io.Writer, key, dest string) {
 }
 
 func compress(key key, reader io.Reader, writer io.Writer) error {
+	if noEncrypt {
+		gzipW := zlib.NewWriter(writer)
+		if _, err := io.Copy(gzipW, reader); err != nil {
+			return err
+		}
+		if err := gzipW.Close(); err != nil {
+			return err
+		}
+		return nil
+	}
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return err
@@ -321,6 +342,19 @@ func compress(key key, reader io.Reader, writer io.Writer) error {
 }
 
 func decompress(key key, reader io.Reader, writer io.Writer) error {
+	if noEncrypt {
+		gzipR, err := zlib.NewReader(reader)
+		if err != nil {
+			return err
+		}
+		if _, err := io.Copy(writer, gzipR); err != nil {
+			return err
+		}
+		if err := gzipR.Close(); err != nil {
+			return err
+		}
+		return nil
+	}
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return err
